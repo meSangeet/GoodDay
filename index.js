@@ -1,4 +1,9 @@
+const express = require('express')
 const mongoose = require('mongoose')
+
+const app = express();
+
+app.use(express.json());
 
 mongoose.connect("mongodb://localhost:27017/Learn")
 
@@ -9,10 +14,26 @@ const User = mongoose.model('Users', {
     password : String
 });
 
-const user = new User({
-    name: 'testname1',
-    email: 'test1@email.com',
-    password: 'pass1'
-});
+app.post("/signup", async (req,res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+    const name = req.body.name;
 
-user.save();
+    const existLogUser = await User.findOne({email: username});
+
+    if(existUser){
+        return res.status(400).send("Username already exists");
+    }
+
+    const user = new User({
+        name: name,
+        email: username,
+        password: password
+    })
+
+    user.save();
+
+    req.json({
+        "msg" : "User created successfully"
+    })
+})
